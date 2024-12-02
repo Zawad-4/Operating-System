@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_FILES 100
+#define MAX_DIRECTORIES 10
+
+struct File {
+    char name[50];
+};
+
+struct Directory {
+    char name[50];
+    struct File files[MAX_FILES];
+    int fileCount;
+};
+
+struct FileSystem {
+    struct Directory directories[MAX_DIRECTORIES];
+    int directoryCount;
+} fileSystem;
+
+void createDirectory(char *dirName) {
+    if (fileSystem.directoryCount >= MAX_DIRECTORIES) {
+        printf("Maximum number of directories reached.\n");
+        return;
+    }
+    for (int i = 0; i < fileSystem.directoryCount; i++) {
+        if (strcmp(fileSystem.directories[i].name, dirName) == 0) {
+            printf("Directory '%s' already exists.\n", dirName);
+            return;
+        }
+    }
+    strcpy(fileSystem.directories[fileSystem.directoryCount].name, dirName);
+    fileSystem.directories[fileSystem.directoryCount].fileCount = 0;
+    fileSystem.directoryCount++;
+    printf("Directory '%s' created successfully.\n", dirName);
+}
+
+void createFileInDirectory(char *dirName, char *fileName) {
+    int dirIndex = -1;
+    for (int i = 0; i < fileSystem.directoryCount; i++) {
+        if (strcmp(fileSystem.directories[i].name, dirName) == 0) {
+            dirIndex = i;
+            break;
+        }
+    }
+    if (dirIndex == -1) {
+        printf("Directory '%s' not found.\n", dirName);
+        return;
+    }
+
+    struct Directory *dir = &fileSystem.directories[dirIndex];
+    if (dir->fileCount >= MAX_FILES) {
+        printf("Directory '%s' is full.\n", dirName);
+        return;
+    }
+    for (int i = 0; i < dir->fileCount; i++) {
+        if (strcmp(dir->files[i].name, fileName) == 0) {
+            printf("File '%s' already exists in '%s'.\n", fileName, dirName);
+            return;
+        }
+    }
+    strcpy(dir->files[dir->fileCount].name, fileName);
+    dir->fileCount++;
+    printf("File '%s' created in directory '%s'.\n", fileName, dirName);
+}
+
+void listFilesInDirectory(char *dirName) {
+    int dirIndex = -1;
+    for (int i = 0; i < fileSystem.directoryCount; i++) {
+        if (strcmp(fileSystem.directories[i].name, dirName) == 0) {
+            dirIndex = i;
+            break;
+        }
+    }
+    if (dirIndex == -1) {
+        printf("Directory '%s' not found.\n", dirName);
+        return;
+    }
+
+    struct Directory *dir = &fileSystem.directories[dirIndex];
+    if (dir->fileCount == 0) {
+        printf("No files in directory '%s'.\n", dirName);
+        return;
+    }
+
+    printf("Files in directory '%s':\n", dirName);
+    for (int i = 0; i < dir->fileCount; i++) {
+        printf("%s\n", dir->files[i].name);
+    }
+}
+
+int main() {
+    fileSystem.directoryCount = 0;
+    int choice;
+    char dirName[50], fileName[50];
+
+    while (1) {
+        printf("\n1. Create Directory\n2. Create File in Directory\n3. List Files in Directory\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                printf("Enter directory name: ");
+                scanf("%s", dirName);
+                createDirectory(dirName);
+                break;
+            case 2:
+                printf("Enter directory name: ");
+                scanf("%s", dirName);
+                printf("Enter file name: ");
+                scanf("%s", fileName);
+                createFileInDirectory(dirName, fileName);
+                break;
+            case 3:
+                printf("Enter directory name: ");
+                scanf("%s", dirName);
+                listFilesInDirectory(dirName);
+                break;
+            case 4:
+                return 0;
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+}
