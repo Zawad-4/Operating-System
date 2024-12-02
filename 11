@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+void *printMessage(void *arg) {
+    char *message = (char *)arg;
+    printf("%s\n", message);
+    return NULL;
+}
+
+int main() {
+    pthread_t thread1, thread2;
+
+    // Creating threads
+    pthread_create(&thread1, NULL, printMessage, "Hello from Thread 1");
+    pthread_create(&thread2, NULL, printMessage, "Hello from Thread 2");
+
+    // Joining threads
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    printf("Threads completed execution.\n");
+    return 0;
+}
