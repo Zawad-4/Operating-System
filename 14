@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_FILES 100
+
+struct File {
+    char name[50];
+};
+
+struct Directory {
+    struct File files[MAX_FILES];
+    int fileCount;
+} directory;
+
+void createFile(char *filename) {
+    if (directory.fileCount >= MAX_FILES) {
+        printf("Directory is full. Cannot create more files.\n");
+        return;
+    }
+    for (int i = 0; i < directory.fileCount; i++) {
+        if (strcmp(directory.files[i].name, filename) == 0) {
+            printf("File '%s' already exists.\n", filename);
+            return;
+        }
+    }
+    strcpy(directory.files[directory.fileCount].name, filename);
+    directory.fileCount++;
+    printf("File '%s' created successfully.\n", filename);
+}
+
+void deleteFile(char *filename) {
+    for (int i = 0; i < directory.fileCount; i++) {
+        if (strcmp(directory.files[i].name, filename) == 0) {
+            for (int j = i; j < directory.fileCount - 1; j++) {
+                directory.files[j] = directory.files[j + 1];
+            }
+            directory.fileCount--;
+            printf("File '%s' deleted successfully.\n", filename);
+            return;
+        }
+    }
+    printf("File '%s' not found.\n", filename);
+}
+
+void listFiles() {
+    if (directory.fileCount == 0) {
+        printf("Directory is empty.\n");
+        return;
+    }
+    printf("Files in directory:\n");
+    for (int i = 0; i < directory.fileCount; i++) {
+        printf("%s\n", directory.files[i].name);
+    }
+}
+
+int main() {
+    directory.fileCount = 0;
+    int choice;
+    char filename[50];
+
+    while (1) {
+        printf("\n1. Create File\n2. Delete File\n3. List Files\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                printf("Enter file name to create: ");
+                scanf("%s", filename);
+                createFile(filename);
+                break;
+            case 2:
+                printf("Enter file name to delete: ");
+                scanf("%s", filename);
+                deleteFile(filename);
+                break;
+            case 3:
+                listFiles();
+                break;
+            case 4:
+                return 0;
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+}
