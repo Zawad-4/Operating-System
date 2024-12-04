@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int main() {
+    int src_fd, dest_fd;
+    char buffer[1024];
+    ssize_t bytesRead, bytesWritten;
+
+    // Open the source file for reading
+    src_fd = open("source.txt", O_RDONLY);
+    if (src_fd == -1) {
+        perror("Error opening source file");
+        return 1;
+    }
+
+    // Open the destination file for writing
+    dest_fd = open("destination.txt", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+    if (dest_fd == -1) {
+        perror("Error opening destination file");
+        close(src_fd);
+        return 1;
+    }
+
+    // Copy contents from source to destination
+    while ((bytesRead = read(src_fd, buffer, sizeof(buffer))) > 0) {
+        bytesWritten = write(dest_fd, buffer, bytesRead);
+        if (bytesWritten != bytesRead) {
+            perror("Error writing to destination file");
+            close(src_fd);
+            close(dest_fd);
+            return 1;
+        }
+    }
+
+    if (bytesRead == -1) {
+        perror("Error reading from source file");
+    }
+
+    // Close the files
+    close(src_fd);
+    close(dest_fd);
+
+    return 0;
+}
