@@ -1,0 +1,40 @@
+#include <stdio.h>
+
+struct Process {
+    int pid;    // Process ID
+    int bt;     // Burst Time
+};
+
+void findSmallestExecutionTime(struct Process proc[], int n) {
+    int minIndex;
+    for (int i = 0; i < n; i++) {
+        minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (proc[j].bt < proc[minIndex].bt) {
+                minIndex = j;
+            }
+        }
+        if (minIndex != i) {
+            struct Process temp = proc[i];
+            proc[i] = proc[minIndex];
+            proc[minIndex] = temp;
+        }
+    }
+}
+
+void printProcesses(struct Process proc[], int n) {
+    printf("Process ID | Burst Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t\t%d\n", proc[i].pid, proc[i].bt);
+    }
+}
+
+int main() {
+    struct Process proc[] = {{1, 6}, {2, 8}, {3, 7}, {4, 3}};
+    int n = sizeof(proc) / sizeof(proc[0]);
+
+    findSmallestExecutionTime(proc, n);
+    printProcesses(proc, n);
+
+    return 0;
+}
