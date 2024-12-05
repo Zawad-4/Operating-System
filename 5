@@ -1,41 +1,87 @@
 #include <stdio.h>
 
 struct Process {
-    int pid;    // Process ID
-    int priority; // Priority
-    int bt;     // Burst Time
+    int pid;          // Process ID
+    int burstTime;    // Burst Time
+    int priority;     // Priority (lower value means higher priority)
+    int waitTime;     // Waiting Time
+    int turnAroundTime; // Turnaround Time
+    int isCompleted;  // Completion flag
 };
 
-void findHighestPriority(struct Process proc[], int n) {
-    int maxPriorityIndex;
-    for (int i = 0; i < n; i++) {
-        maxPriorityIndex = i;
-        for (int j = i + 1; j < n; j++) {
-            if (proc[j].priority > proc[maxPriorityIndex].priority) {
-                maxPriorityIndex = j;
+void calculateTimes(struct Process processes[], int n) {
+    int currentTime = 0;
+    int completed = 0;
+
+    while (completed < n) {
+        int highestPriority = -1;
+        int minPriority = 9999;
+
+        // Find the process with the highest priority that is not completed
+        for (int i = 0; i < n; i++) {
+            if (!processes[i].isCompleted && processes[i].priority < minPriority) {
+                minPriority = processes[i].priority;
+                highestPriority = i;
             }
         }
-        if (maxPriorityIndex != i) {
-            struct Process temp = proc[i];
-            proc[i] = proc[maxPriorityIndex];
-            proc[maxPriorityIndex] = temp;
+
+        // Process the selected process
+        if (highestPriority != -1) {
+            processes[highestPriority].waitTime = currentTime;
+            currentTime += processes[highestPriority].burstTime;
+            processes[highestPriority].turnAroundTime = currentTime;
+            processes[highestPriority].isCompleted = 1;
+            completed++;
         }
     }
 }
 
-void printProcesses(struct Process proc[], int n) {
-    printf("Process ID | Priority | Burst Time\n");
+void printTable(struct Process processes[], int n) {
+    printf("PID\tBurst Time\tPriority\tWaiting Time\tTurnaround Time\n");
     for (int i = 0; i < n; i++) {
-        printf("%d\t\t%d\t\t%d\n", proc[i].pid, proc[i].priority, proc[i].bt);
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n",
+            processes[i].pid,
+            processes[i].burstTime,
+            processes[i].priority,
+            processes[i].waitTime,
+            processes[i].turnAroundTime);
     }
 }
 
 int main() {
-    struct Process proc[] = {{1, 2, 6}, {2, 3, 8}, {3, 1, 7}, {4, 4, 3}};
-    int n = sizeof(proc) / sizeof(proc[0]);
+    int n;
 
-    findHighestPriority(proc, n);
-    printProcesses(proc, n);
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process processes[n];
+
+    // Input burst times and priorities for processes
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        printf("Enter burst time for Process %d: ", i + 1);
+        scanf("%d", &processes[i].burstTime);
+        printf("Enter priority for Process %d (lower value means higher priority): ", i + 1);
+        scanf("%d", &processes[i].priority);
+        processes[i].isCompleted = 0; // Mark process as not completed
+    }
+
+    // Calculate waiting and turnaround times
+    calculateTimes(processes, n);
+
+    // Print process information
+    printf("\nProcess Execution Details:\n");
+    printTable(processes, n);
+
+    // Calculate and display average waiting and turnaround times
+    float totalWaitTime = 0, totalTurnAroundTime = 0;
+    for (int i = 0; i < n; i++) {
+        totalWaitTime += processes[i].waitTime;
+        totalTurnAroundTime += processes[i].turnAroundTime;
+    }
+
+    printf("\nAverage Waiting Time: %.2f\n", totalWaitTime / n);
+    printf("Average Turnaround Time: %.2f\n", totalTurnAroundTime / n);
 
     return 0;
 }
