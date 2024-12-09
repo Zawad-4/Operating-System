@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+    char buffer[100];
+
+    // Create a file
+    fd = open("file.txt", O_CREAT | O_WRONLY, 0644);
+    if (fd < 0) {
+        perror("Create failed");
+        return 1;
+    }
+    write(fd, "Sample file content\n", 20);
+    close(fd);
+
+    // Read a file
+    fd = open("file.txt", O_RDONLY);
+    if (fd < 0) {
+        perror("Open failed");
+        return 1;
+    }
+    read(fd, buffer, sizeof(buffer));
+    printf("File content: %s", buffer);
+    close(fd);
+
+    // Delete a file
+    if (unlink("file.txt") == 0) {
+        printf("File deleted successfully.\n");
+    } else {
+        perror("Delete failed");
+    }
+
+    return 0;
+}
