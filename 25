@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+int main() {
+    int fd;
+    char buffer[50];
+    struct stat fileStat;
+
+    // Using `open` and `fcntl`
+    fd = open("testfile.txt", O_CREAT | O_RDWR, 0644);
+    if (fd < 0) {
+        perror("Open failed");
+        return 1;
+    }
+    fcntl(fd, F_SETFL, O_APPEND);
+    write(fd, "Appending text.\n", 16);
+    close(fd);
+
+    // Using `stat`
+    if (stat("testfile.txt", &fileStat) == 0) {
+        printf("File Size: %ld bytes\n", fileStat.st_size);
+    } else {
+        perror("Stat failed");
+    }
+
+    // Using `opendir` and `readdir`
+    DIR *dir = opendir(".");
+    if (dir) {
+        struct dirent *entry;
+        printf("Directory contents:\n");
+        while ((entry = readdir(dir)) != NULL) {
+            printf("%s\n", entry->d_name);
+        }
+        closedir(dir);
+    } else {
+        perror("Opendir failed");
+    }
+
+    return 0;
+}
