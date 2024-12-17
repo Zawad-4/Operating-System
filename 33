@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+int predict(int pages[], int n, int page, int index) {
+    int i;
+    for (i = index; i < n; i++) {
+        if (pages[i] == page)
+            return i;
+    }
+    return n;
+}
+
+int findOptimal(int pages[], int frames[], int n, int f, int index) {
+    int i, pos = -1, farthest = index;
+    for (i = 0; i < f; i++) {
+        int nextUse = predict(pages, n, frames[i], index);
+        if (nextUse > farthest) {
+            farthest = nextUse;
+            pos = i;
+        }
+    }
+    return (pos == -1) ? 0 : pos;
+}
+
+int main() {
+    int pages[50], frames[10], n, f, i, j, pageFaults = 0, flag;
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+
+    printf("Enter page sequence: ");
+    for (i = 0; i < n; i++) scanf("%d", &pages[i]);
+
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
+
+    for (i = 0; i < f; i++) frames[i] = -1;
+
+    for (i = 0; i < n; i++) {
+        flag = 0;
+        for (j = 0; j < f; j++) {
+            if (frames[j] == pages[i]) {
+                flag = 1;
+                break;
+            }
+        }
+        if (!flag) {
+            if (i < f) {
+                frames[i] = pages[i];
+            } else {
+                int pos = findOptimal(pages, frames, n, f, i);
+                frames[pos] = pages[i];
+            }
+            pageFaults++;
+        }
+        printf("\nPage %d -> Frames: ", pages[i]);
+        for (j = 0; j < f; j++) printf("%d ", frames[j]);
+    }
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+    return 0;
+}
