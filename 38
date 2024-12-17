@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int cmpfunc(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+int main() {
+    int n, i, head, direction, seek = 0, pos;
+    printf("Enter number of disk requests: ");
+    scanf("%d", &n);
+
+    int requests[n + 1];
+    printf("Enter disk requests: ");
+    for (i = 0; i < n; i++) scanf("%d", &requests[i]);
+
+    printf("Enter current head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk direction (1 for right, 0 for left): ");
+    scanf("%d", &direction);
+
+    requests[n] = head;
+    n++;
+    qsort(requests, n, sizeof(int), cmpfunc);
+
+    for (i = 0; i < n; i++)
+        if (requests[i] == head) pos = i;
+
+    if (direction) {
+        for (i = pos; i < n; i++) seek += abs(requests[i] - head), head = requests[i];
+        for (i = pos - 1; i >= 0; i--) seek += abs(requests[i] - head), head = requests[i];
+    } else {
+        for (i = pos; i >= 0; i--) seek += abs(requests[i] - head), head = requests[i];
+        for (i = pos + 1; i < n; i++) seek += abs(requests[i] - head), head = requests[i];
+    }
+
+    printf("Total seek time: %d\n", seek);
+    return 0;
+}
