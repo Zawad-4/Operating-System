@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i;
+    printf("Enter the number of records in the file: ");
+    scanf("%d", &n);
+
+    int *file = (int *)malloc(n * sizeof(int));
+    printf("Enter the records sequentially:\n");
+    for (i = 0; i < n; i++) {
+        printf("Record %d: ", i + 1);
+        scanf("%d", &file[i]);
+    }
+
+    int record;
+    printf("Enter record number to access: ");
+    scanf("%d", &record);
+
+    if (record > 0 && record <= n) {
+        printf("Accessing record %d: ", record);
+        for (i = 0; i < record; i++) {
+            printf("%d ", file[i]);
+        }
+        printf("\n");
+    } else {
+        printf("Invalid record number.\n");
+    }
+
+    free(file);
+    return 0;
+}
